@@ -4,15 +4,15 @@ A web-based application for managing student academic records and results. Built
 
 ## Tech Stack
 
-- **Frontend:** HTML, CSS, JavaScript, Tailwind CSS
+- **Frontend:** HTML, CSS, JavaScript, Tailwind CSS, Font Awesome
 - **Backend:** PHP 8.x
 - **Database:** MySQL / MariaDB
-- **Server:** Apache / Nginx (XAMPP compatible)
+- **Server:** Apache / Nginx (XAMPP compatible), Docker
 
 ## File Structure
 
 ```
-├── Admin/                    # Admin panel (52 files)
+├── Admin/                    # Admin panel
 │   ├── admin_dashboard.php   # Dashboard with stats & charts
 │   ├── classes.php           # Manage classes/sections
 │   ├── students.php          # Student records
@@ -24,7 +24,8 @@ A web-based application for managing student academic records and results. Built
 │   ├── students_result.php   # Per-student result view
 │   ├── grade_sheet.php       # Grade sheet generator
 │   ├── class_topers.php      # Class toppers report
-│   ├── student_ledger.php    # Academic ledger
+│   ├── student_ledger.php    # Academic ledger overview
+│   ├── view_student_ledger.php # Academic ledger detail
 │   ├── users.php             # User management
 │   ├── upload_results.php    # CSV bulk upload
 │   ├── manual_entry.php      # Manual result entry
@@ -36,7 +37,7 @@ A web-based application for managing student academic records and results. Built
 │   ├── publish_results.php   # Publish results
 │   ├── unpublish_results.php # Unpublish results
 │   ├── print_result.php      # Print result cards
-│   ├── sidebar.php           # Shared sidebar
+│   ├── sidebar.php           # Shared sidebar (Font Awesome)
 │   ├── topBar.php            # Shared top bar
 │   ├── mobile_sidebar.php    # Mobile sidebar
 │   └── process_*.php, save_*.php, get_*.php  # AJAX handlers
@@ -64,7 +65,7 @@ A web-based application for managing student academic records and results. Built
 │   ├── register_process.php  # User registration
 │   └── auth_process.php      # Admin auth
 ├── includes/                 # Shared includes
-│   ├── config.php            # Database connection
+│   ├── config.php            # Database connection (env-aware)
 │   ├── db_connetc.php        # DB connection (includes config.php)
 │   └── logout.php            # Logout handler
 ├── css/                      # Stylesheets
@@ -84,6 +85,8 @@ A web-based application for managing student academic records and results. Built
 │   ├── profiles/
 │   ├── templates/            # Print templates
 │   └── logo/                 # School logo
+├── Dockerfile                # PHP-Apache container
+├── docker-compose.yml        # App + MySQL services
 ├── login.php                 # Login page
 ├── register.php              # Registration page
 ├── index.php                 # Redirects to login.php
@@ -92,12 +95,14 @@ A web-based application for managing student academic records and results. Built
 
 ## Installation
 
-### Requirements
+### Traditional (XAMPP / LAMP)
+
+#### Requirements
 - PHP 8.0+
 - MySQL 5.7+ / MariaDB 10.3+
 - Apache with mod_rewrite or Nginx
 
-### Steps
+#### Steps
 
 1. **Clone the project** into your web root:
    ```bash
@@ -120,6 +125,8 @@ A web-based application for managing student academic records and results. Built
    $dbname = "result_management";
    ```
 
+   Configuration is read from environment variables first (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`), falling back to defaults above.
+
 4. **Set permissions** on upload directories:
    ```bash
    chmod -R 775 uploads/
@@ -127,28 +134,57 @@ A web-based application for managing student academic records and results. Built
 
 5. **Access the application** at `http://localhost/student_result/`
 
+### Docker
+
+#### Requirements
+- Docker & Docker Compose
+
+#### Steps
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd student_result
+   ```
+
+2. **Start the services**:
+   ```bash
+   docker compose up -d
+   ```
+
+3. **Import the database**:
+   ```bash
+   docker compose exec -T db mysql -uroot -proot result_management < Database/result_management.sql
+   ```
+
+4. **Access the application** at `http://localhost:8081`
+
+The web server runs on port **8081** and MySQL on port **3308** (host side) to avoid conflicts.
+
 ### Default Credentials
 
-| Role    | Username | Password  |
-|---------|----------|-----------|
-| Admin   | admin    | admin123  |
+| Role    | Username / Email | Password  |
+|---------|------------------|-----------|
+| Admin   | admin            | admin123  |
 
 Students and teachers can self-register from the login page.
 
 ## Features
 
-- Role-based dashboards (Admin, Teacher, Student)
+- Role-based dashboards (Admin, Teacher, Student) with responsive sidebars
 - Student registration with class/batch assignment
 - Teacher registration with department/qualification
 - Exam creation and management
 - Manual and CSV bulk result entry
-- Automatic grade/GPA calculation
-- Result publishing workflow
-- Grade sheets and report cards
+- Automatic grade/GPA calculation with configurable grading system
+- Result publishing / unpublishing workflow
+- Grade sheets and printable report cards
+- **Student Ledger** — full academic history per student
 - Class toppers and performance analytics
 - Profile management with photo upload
 - Remember-me login
 - Session-based authentication
+- Docker support for easy deployment
 
 ## Database Schema
 
