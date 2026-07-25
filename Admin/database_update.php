@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -150,6 +150,24 @@ executeSafely($conn, "
     ADD INDEX `idx_performance_gpa` (`gpa`),
     ADD INDEX `idx_performance_rank` (`rank`)
 ", "Adding indexes to student_performance table");
+
+// Check if profile_picture column exists in students table
+$checkColumn = $conn->query("SHOW COLUMNS FROM `students` LIKE 'profile_picture'");
+if ($checkColumn && $checkColumn->num_rows == 0) {
+    executeSafely($conn, 
+        "ALTER TABLE `students` ADD COLUMN `profile_picture` varchar(255) DEFAULT NULL AFTER `section_id`",
+        "Adding profile_picture column to students table"
+    );
+}
+
+// Check if academic_year column exists in teachersubjects table
+$checkColumn = $conn->query("SHOW COLUMNS FROM `teachersubjects` LIKE 'academic_year'");
+if ($checkColumn && $checkColumn->num_rows == 0) {
+    executeSafely($conn, 
+        "ALTER TABLE `teachersubjects` ADD COLUMN `academic_year` varchar(20) DEFAULT NULL AFTER `is_active`",
+        "Adding academic_year column to teachersubjects table"
+    );
+}
 
 // Close the database connection
 $conn->close();

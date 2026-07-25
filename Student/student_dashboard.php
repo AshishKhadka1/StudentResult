@@ -6,13 +6,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'student') {
 }
 
 // Database connection with error handling
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Enable error reporting for debugging
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user_id = $_SESSION['user_id'];
 
@@ -39,14 +37,14 @@ function getStudentDetails($conn, $user_id) {
 }
 
 // Get subjects for the student's class with error handling
-function getSubjects($conn, $academic_year) {
+function getSubjects($conn, $class_id) {
     $subjects = [];
     try {
-        $stmt = $conn->prepare("SELECT DISTINCT s.* FROM subjects s 
-                              JOIN teachersubjects ts ON ts.subject_id = s.subject_id 
-                              WHERE ts.academic_year = ?
+        $stmt = $conn->prepare("SELECT s.* FROM subjects s 
+                              JOIN classsubjects cs ON cs.subject_id = s.subject_id 
+                              WHERE cs.class_id = ?
                               ORDER BY s.subject_name");
-        $stmt->bind_param("s", $academic_year);
+        $stmt->bind_param("i", $class_id);
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
@@ -336,7 +334,7 @@ if (!$student) {
     die("Student record not found. Please contact administrator.");
 }
 
-$subjects = getSubjects($conn, $student['academic_year']);
+$subjects = getSubjects($conn, $student['class_id']);
 $upcoming_exams = getUpcomingExams($conn, $student['class_id']);
 $recent_results = getRecentResults($conn, $student['student_id']);
 $subject_performance = getSubjectPerformance($conn, $student['student_id']);
@@ -515,12 +513,7 @@ $conn->close();
                                         Here's your real-time academic performance dashboard. Stay updated with your results and progress.
                                     </p>
                                 </div>
-                                <div class="mt-4 md:mt-0">
-                                    <span class="real-time-indicator">
-                                        <span class="real-time-dot"></span>
-                                        Live Data
-                                    </span>
-                                </div>
+                                
                             </div>
                         </div>
 

@@ -15,7 +15,7 @@ $student_id = $_GET['student_id'];
 $exam_id = $_GET['exam_id'];
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     echo "Connection failed: " . $conn->connect_error;
     exit();

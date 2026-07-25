@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8.0
+    command: --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: result_management
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+
+  web:
+    build: .
+    ports:
+      - "8081:80"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: result_management
+    # volumes: (intentionally empty - files are baked into the image via Dockerfile COPY)
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

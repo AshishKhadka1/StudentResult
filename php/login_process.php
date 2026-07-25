@@ -11,7 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $remember = isset($_POST['remember-me']);
 
     // Log the login attempt
-    error_log("Login attempt - Username: $username, Role: $role");
 
     // Validate input
     if (empty($username) || empty($password) || empty($role)) {
@@ -21,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Connect to database
-    $conn = new mysqli('localhost', 'root', '', 'result_management');
+    $conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 
     // Check connection
     if ($conn->connect_error) {
@@ -58,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        error_log("User found: " . json_encode($user));
         
         // Verify password
         if (password_verify($password, $user['password'])) {

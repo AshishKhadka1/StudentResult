@@ -1,17 +1,10 @@
 <?php
-// Only start session if one doesn't already exist
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+$host = getenv('DB_HOST') ?: 'localhost';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: '';
+$dbname = getenv('DB_NAME') ?: 'result_management';
 
-// Database connection (Optional, if you have a database)
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "result_management";
-
-$conn = mysqli_connect($host, $user, $pass, $dbname);
-if (!$conn) {
-    die("Database connection failed: " . mysqli_connect_error());
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
 }
-?>

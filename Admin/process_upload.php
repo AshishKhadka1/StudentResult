@@ -2,7 +2,7 @@
 // Include necessary files
 require_once '../includes/config.php';
 require_once '../includes/db_connetc.php';
-// Remove the redundant session_start() since it's likely already started in config.php
+session_start();
 
 // Check if user is logged in and has admin privileges
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {

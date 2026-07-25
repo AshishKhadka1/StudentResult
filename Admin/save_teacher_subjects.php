@@ -2,7 +2,6 @@
 // Enable error logging to a file
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-error_log("Starting teacher subjects save process");
 
 // Start output buffering to prevent any unwanted output
 ob_start();
@@ -42,7 +41,6 @@ if (!empty($submission_token)) {
     
     // Check if this token has been used before
     if (in_array($submission_token, $_SESSION['submission_tokens'])) {
-        error_log("Duplicate submission detected with token: $submission_token");
         ob_end_clean();
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'This form has already been submitted. Please refresh the page to submit again.']);
@@ -59,14 +57,11 @@ if (!empty($submission_token)) {
 }
 
 try {
-    error_log("Connecting to database");
     // Database connection
-    $conn = new mysqli('localhost', 'root', '', 'result_management');
+    $conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
     if ($conn->connect_error) {
-        error_log("Database connection failed: " . $conn->connect_error);
         throw new Exception('Database connection failed: ' . $conn->connect_error);
     }
-    error_log("Database connection successful");
 
     // Check if teachersubjects table exists, if not create it
     $table_check = $conn->query("SHOW TABLES LIKE 'teachersubjects'");
@@ -94,12 +89,10 @@ try {
     }
 
     // Begin transaction
-    error_log("Beginning transaction");
     $conn->begin_transaction();
 
     // Get action type
     $action = getPostValue('action', 'assign');
-    error_log("Action: $action");
 
     if ($action === 'assign') {
         // Assign new subject
@@ -107,7 +100,6 @@ try {
         $subject_id = getPostValue('subject_id');
         $class_id = getPostValue('class_id');
         
-        error_log("Form data received: " . json_encode([
             'teacher_id' => $teacher_id,
             'subject_id' => $subject_id,
             'class_id' => $class_id
@@ -115,15 +107,12 @@ try {
 
         // Validate required fields
         if (empty($teacher_id) || empty($subject_id) || empty($class_id)) {
-            error_log("Missing required fields");
             throw new Exception('Please fill all required fields');
         }
 
         // Check if assignment already exists
-        error_log("Checking if assignment already exists");
         $stmt = $conn->prepare("SELECT id FROM teachersubjects WHERE teacher_id = ? AND subject_id = ? AND class_id = ?");
         if (!$stmt) {
-            error_log("Prepare statement failed: " . $conn->error);
             throw new Exception('Database error: ' . $conn->error);
         }
         
@@ -137,16 +126,13 @@ try {
             $assignment_id = $row['id'];
             $stmt->close();
             
-            error_log("Assignment exists, updating to active: $assignment_id");
             $update_stmt = $conn->prepare("UPDATE teachersubjects SET is_active = 1 WHERE id = ?");
             if (!$update_stmt) {
-                error_log("Prepare statement failed: " . $conn->error);
                 throw new Exception('Database error: ' . $conn->error);
             }
             
             $update_stmt->bind_param("i", $assignment_id);
             if (!$update_stmt->execute()) {
-                error_log("Execute failed: " . $update_stmt->error);
                 throw new Exception('Error updating assignment: ' . $update_stmt->error);
             }
             $update_stmt->close();
@@ -156,16 +142,13 @@ try {
             // New assignment
             $stmt->close();
             
-            error_log("Creating new assignment");
             $insert_stmt = $conn->prepare("INSERT INTO teachersubjects (teacher_id, subject_id, class_id, is_active, created_at) VALUES (?, ?, ?, 1, NOW())");
             if (!$insert_stmt) {
-                error_log("Prepare statement failed: " . $conn->error);
                 throw new Exception('Database error: ' . $conn->error);
             }
             
             $insert_stmt->bind_param("iii", $teacher_id, $subject_id, $class_id);
             if (!$insert_stmt->execute()) {
-                error_log("Execute failed: " . $insert_stmt->error);
                 throw new Exception('Error creating assignment: ' . $insert_stmt->error);
             }
             $assignment_id = $conn->insert_id;
@@ -174,14 +157,12 @@ try {
             $message = 'Subject assigned successfully';
         }
         
-        error_log("Assignment completed: $message");
     } elseif ($action === 'toggle_status') {
         // Toggle subject status
         $assignment_id = getPostValue('assignment_id');
         $status = getPostValue('status');
         $teacher_id = getPostValue('teacher_id');
         
-        error_log("Form data received: " . json_encode([
             'assignment_id' => $assignment_id,
             'status' => $status,
             'teacher_id' => $teacher_id
@@ -189,68 +170,55 @@ try {
 
         // Validate required fields
         if (empty($assignment_id) || !isset($status) || empty($teacher_id)) {
-            error_log("Missing required fields");
             throw new Exception('Missing required fields for status toggle');
         }
 
         // Convert status to boolean
         $is_active = $status ? 1 : 0;
         
-        error_log("Updating assignment status: $assignment_id to $is_active");
         $stmt = $conn->prepare("UPDATE teachersubjects SET is_active = ? WHERE id = ? AND teacher_id = ?");
         if (!$stmt) {
-            error_log("Prepare statement failed: " . $conn->error);
             throw new Exception('Database error: ' . $conn->error);
         }
         
         $stmt->bind_param("iii", $is_active, $assignment_id, $teacher_id);
         if (!$stmt->execute()) {
-            error_log("Execute failed: " . $stmt->error);
             throw new Exception('Error updating assignment status: ' . $stmt->error);
         }
         $stmt->close();
         
         $message = $is_active ? 'Subject activated successfully' : 'Subject deactivated successfully';
-        error_log("Status updated: $message");
     } elseif ($action === 'remove') {
         // Remove subject assignment
         $assignment_id = getPostValue('assignment_id');
         $teacher_id = getPostValue('teacher_id');
         
-        error_log("Form data received: " . json_encode([
             'assignment_id' => $assignment_id,
             'teacher_id' => $teacher_id
         ]));
 
         // Validate required fields
         if (empty($assignment_id) || empty($teacher_id)) {
-            error_log("Missing required fields");
             throw new Exception('Missing required fields for assignment removal');
         }
 
-        error_log("Removing assignment: $assignment_id");
         $stmt = $conn->prepare("DELETE FROM teachersubjects WHERE id = ? AND teacher_id = ?");
         if (!$stmt) {
-            error_log("Prepare statement failed: " . $conn->error);
             throw new Exception('Database error: ' . $conn->error);
         }
         
         $stmt->bind_param("ii", $assignment_id, $teacher_id);
         if (!$stmt->execute()) {
-            error_log("Execute failed: " . $stmt->error);
             throw new Exception('Error removing assignment: ' . $stmt->error);
         }
         $stmt->close();
         
         $message = 'Subject assignment removed successfully';
-        error_log("Assignment removed: $message");
     } else {
-        error_log("Invalid action: $action");
         throw new Exception('Invalid action');
     }
     
     // Log the activity
-    error_log("Logging activity");
     $activity_type = 'teacher_subject_' . $action;
     $description = "Teacher subject $action: Teacher ID $teacher_id";
     $admin_id = $_SESSION['user_id'];
@@ -259,35 +227,28 @@ try {
     // Check if activities table exists
     $table_check = $conn->query("SHOW TABLES LIKE 'activities'");
     if ($table_check && $table_check->num_rows > 0) {
-        error_log("Activities table exists, logging activity");
         $log_stmt = $conn->prepare("INSERT INTO activities (user_id, activity_type, description, created_by, created_at) VALUES (?, ?, ?, ?, ?)");
         if ($log_stmt) {
             $log_stmt->bind_param("issss", $teacher_id, $activity_type, $description, $admin_id, $current_time);
             $log_stmt->execute();
             $log_stmt->close();
         } else {
-            error_log("Could not prepare activity log statement: " . $conn->error);
             // Non-critical, continue without throwing exception
         }
     } else {
-        error_log("Activities table does not exist, skipping activity log");
     }
     
     // Commit transaction
-    error_log("Committing transaction");
     $conn->commit();
     
     // Clean any output that might have been generated
     ob_end_clean();
     
-    error_log("Operation completed successfully");
     header('Content-Type: application/json');
     echo json_encode(['success' => true, 'message' => $message]);
 } catch (Exception $e) {
-    error_log("Error in save_teacher_subjects.php: " . $e->getMessage());
     // Rollback transaction on error if connection exists
     if (isset($conn) && $conn instanceof mysqli) {
-        error_log("Rolling back transaction");
         $conn->rollback();
     }
     
@@ -300,7 +261,6 @@ try {
 
 // Close connection if it exists
 if (isset($conn) && $conn instanceof mysqli) {
-    error_log("Closing database connection");
     $conn->close();
 }
 ?>

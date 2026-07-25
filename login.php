@@ -5,7 +5,7 @@ session_start();
 // Check for remember-me cookie
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user']) && isset($_COOKIE['remember_role'])) {
     // Connect to database
-    $conn = new mysqli('localhost', 'root', '', 'result_management');
+    $conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
     if (!$conn->connect_error) {
         $username = $conn->real_escape_string($_COOKIE['remember_user']);
         $role = $conn->real_escape_string($_COOKIE['remember_role']);
@@ -23,13 +23,13 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user']) && isset($_
             
             // Redirect based on role
             if ($role == 'student') {
-                header("Location: Student\student_dashboard.php");
+                header("Location: Student/student_dashboard.php");
                 exit();
             } elseif ($role == 'teacher') {
-                header("Location: Teacher\teacher_dashboard.php");
+                header("Location: Teacher/teacher_dashboard.php");
                 exit();
             } elseif ($role == 'admin') {
-                header("Location: Admin\admin_dashboard.php");
+                header("Location: Admin/admin_dashboard.php");
                 exit();
             }
         }
@@ -155,7 +155,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user']) && isset($_
                 </div>
             </div>
 
-            <div class="flex items-center justify-between pt-2">
+            <!-- <div class="flex items-center justify-between pt-2">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-900 focus:ring-blue-900 border-slate-300 rounded">
                     <label for="remember-me" class="ml-2 block text-sm text-slate-700">
@@ -167,7 +167,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user']) && isset($_
                         Forgot password?
                     </a>
                 </div>
-            </div>
+            </div> -->
 
             <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-900 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 transition duration-150">
                 Login

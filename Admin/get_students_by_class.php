@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Database connection failed']);

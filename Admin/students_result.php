@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'teacher' && $_SESSION
 }
 
 // Connect to database
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -181,7 +181,6 @@ if (isset($_GET['student_id']) && !empty($_GET['student_id'])) {
     $student_id = $_GET['student_id'];
 
     // Debug: Show what student_id we're looking for
-    error_log("Looking for student_id: " . $student_id);
 
     // Get student details with better error handling
     $stmt = $conn->prepare("

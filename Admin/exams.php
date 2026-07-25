@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -414,7 +414,7 @@ $conn->close();
         // Include the file that processes form data
         include 'topBar.php';
 
-        include 'mobile_sidebar.php'
+        include 'mobile_sidebar.php';
         ?>
 
            
@@ -700,7 +700,7 @@ $conn->close();
 
                     <div>
                         <label for="academic_year" class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
-                        <input type="text" id="academic_year" name="academic_year" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="e.g. 2023-2024">
+                        <input type="text" id="academic_year" name="academic_year" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="e.g. 2024-2025">
                     </div>
 
                     <div>
@@ -779,7 +779,7 @@ $conn->close();
 
                     <div>
                         <label for="edit_academic_year" class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
-                        <input type="text" id="edit_academic_year" name="academic_year" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="e.g. 2023-2024">
+                        <input type="text" id="edit_academic_year" name="academic_year" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="e.g. 2024-2025">
                     </div>
 
                     <div>

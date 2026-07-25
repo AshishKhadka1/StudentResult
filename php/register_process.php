@@ -138,12 +138,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $check_stmt->close();
             
-            $stmt = $conn->prepare("INSERT INTO Students (user_id, roll_number, class_id, batch_year, created_at) VALUES (?, ?, ?, ?, ?)");
+            $student_id = 'S' . str_pad($user_id, 3, '0', STR_PAD_LEFT);
+            $registration_number = $student_id;
+            
+            $stmt = $conn->prepare("INSERT INTO Students (student_id, user_id, roll_number, registration_number, class_id, batch_year, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
             if (!$stmt) {
                 throw new Exception("Database error: " . $conn->error);
             }
             
-            $stmt->bind_param("issss", $user_id, $roll_number, $class_id, $batch_year, $created_at);
+            $stmt->bind_param("sisssss", $student_id, $user_id, $roll_number, $registration_number, $class_id, $batch_year, $created_at);
             
             if (!$stmt->execute()) {
                 throw new Exception("Error creating student record: " . $stmt->error);

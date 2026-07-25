@@ -22,7 +22,7 @@ if ($teacher_id === null) {
 }
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }

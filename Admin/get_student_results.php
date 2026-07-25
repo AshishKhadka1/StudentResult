@@ -20,7 +20,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $student_id = $_GET['id'];
 
 // Database connection
-$conn = new mysqli('localhost', 'root', '', 'result_management');
+$conn = new mysqli(getenv('DB_HOST') ?: 'localhost', getenv('DB_USER') ?: 'root', getenv('DB_PASS') ?: '', getenv('DB_NAME') ?: 'result_management');
 if ($conn->connect_error) {
     echo "<div class='text-red-500 p-4'>Connection failed: " . $conn->connect_error . "</div>";
     exit();
