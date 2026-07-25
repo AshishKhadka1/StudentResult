@@ -79,12 +79,6 @@ try {
     $date_of_birth = !empty(getPostValue('date_of_birth')) ? getPostValue('date_of_birth') : null;
     $address = getPostValue('address');
 
-        'full_name' => $full_name,
-        'email' => $email,
-        'employee_id' => $employee_id,
-        'status' => $status
-    ]));
-
     // Validate required fields
     if (empty($full_name) || empty($email) || empty($password) || empty($employee_id)) {
         throw new Exception('Please fill all required fields');

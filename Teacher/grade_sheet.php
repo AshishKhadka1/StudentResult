@@ -162,7 +162,7 @@ $time_periods = [];
 $gpa_trend = [];
 
 // Get available exams with published results only
-$exams_query = "SELECT DISTINCT e.exam_id, e.exam_name, e.exam_type, e.academic_year 
+$exams_query = "SELECT DISTINCT e.exam_id, e.exam_name, e.exam_type, e.academic_year, e.created_at 
                 FROM exams e
                 JOIN results r ON e.exam_id = r.exam_id
                 WHERE e.is_active = 1 

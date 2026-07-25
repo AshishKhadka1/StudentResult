@@ -89,7 +89,7 @@ $stmt = $conn->prepare("SELECT r.*, s.subject_name, c.class_name, c.section,
                        JOIN subjects s ON r.subject_id = s.subject_id 
                        JOIN students st ON r.student_id = st.student_id 
                        JOIN users u ON st.user_id = u.user_id 
-                       JOIN classes c ON r.class_id = c.class_id 
+                       JOIN classes c ON st.class_id = c.class_id 
                        JOIN exams e ON r.exam_id = e.exam_id
                        WHERE r.created_by = ? OR r.updated_by = ?
                        ORDER BY r.updated_at DESC LIMIT 5");

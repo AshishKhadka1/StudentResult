@@ -99,11 +99,6 @@ try {
         $teacher_id = getPostValue('teacher_id');
         $subject_id = getPostValue('subject_id');
         $class_id = getPostValue('class_id');
-        
-            'teacher_id' => $teacher_id,
-            'subject_id' => $subject_id,
-            'class_id' => $class_id
-        ]));
 
         // Validate required fields
         if (empty($teacher_id) || empty($subject_id) || empty($class_id)) {
@@ -162,11 +157,6 @@ try {
         $assignment_id = getPostValue('assignment_id');
         $status = getPostValue('status');
         $teacher_id = getPostValue('teacher_id');
-        
-            'assignment_id' => $assignment_id,
-            'status' => $status,
-            'teacher_id' => $teacher_id
-        ]));
 
         // Validate required fields
         if (empty($assignment_id) || !isset($status) || empty($teacher_id)) {
@@ -192,10 +182,6 @@ try {
         // Remove subject assignment
         $assignment_id = getPostValue('assignment_id');
         $teacher_id = getPostValue('teacher_id');
-        
-            'assignment_id' => $assignment_id,
-            'teacher_id' => $teacher_id
-        ]));
 
         // Validate required fields
         if (empty($assignment_id) || empty($teacher_id)) {

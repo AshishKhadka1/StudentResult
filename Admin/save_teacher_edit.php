@@ -96,14 +96,6 @@ try {
         }
     }
 
-        'teacher_id' => $teacher_id,
-        'user_id' => $user_id,
-        'full_name' => $full_name,
-        'email' => $email,
-        'employee_id' => $employee_id,
-        'status' => $status
-    ]));
-
     // Validate required fields
     if (empty($teacher_id) || empty($user_id) || empty($full_name) || empty($email) || empty($employee_id)) {
         throw new Exception('Please fill all required fields');

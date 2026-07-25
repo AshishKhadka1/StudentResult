@@ -40,11 +40,11 @@ while ($class = $classes_result->fetch_assoc()) {
 // Get classes taught by this teacher
 $teacher_classes = [];
 $stmt = $conn->prepare("
-    SELECT DISTINCT c.class_id, CONCAT(c.class_name, ' ', c.section) as class_name
+    SELECT DISTINCT c.class_id, c.class_name, CONCAT(c.class_name, ' ', c.section) as class_display, c.section
     FROM classes c
     JOIN teachersubjects ts ON c.class_id = ts.class_id
     WHERE ts.teacher_id = ?
-    ORDER BY c.class_name
+    ORDER BY c.class_name, c.section
 ");
 
 if ($stmt === false) {
@@ -87,7 +87,7 @@ if ($show_all == 'yes') {
     $query = "
         SELECT u.user_id, u.full_name, u.email, u.status, u.phone,
                s.student_id, s.roll_number, s.batch_year,
-               c.class_id, CONCAT(c.class_name, ' ', c.section) as class_name
+               c.class_id, c.class_name, CONCAT(c.class_name, ' ', c.section) as class_display
         FROM users u
         JOIN students s ON u.user_id = s.user_id
         LEFT JOIN classes c ON s.class_id = c.class_id
@@ -108,7 +108,7 @@ if ($show_all == 'yes') {
     $query = "
         SELECT DISTINCT u.user_id, u.full_name, u.email, u.status, u.phone,
                s.student_id, s.roll_number, s.batch_year,
-               c.class_id, CONCAT(c.class_name, ' ', c.section) as class_name
+               c.class_id, c.class_name, CONCAT(c.class_name, ' ', c.section) as class_display
         FROM users u
         JOIN students s ON u.user_id = s.user_id
         JOIN classes c ON s.class_id = c.class_id
@@ -222,7 +222,7 @@ $conn->close();
                                         <option value="">All Classes</option>
                                         <?php foreach ($teacher_classes as $class): ?>
                                         <option value="<?php echo $class['class_id']; ?>" <?php echo $class_filter == $class['class_id'] ? 'selected' : ''; ?>>
-                                            <?php echo $class['class_name']; ?>
+                                            <?php echo $class['class_display']; ?>
                                         </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -283,7 +283,7 @@ $conn->close();
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo htmlspecialchars($student['student_id']); ?></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($student['full_name']); ?></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($student['roll_number']); ?></td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($student['class_name']); ?></td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($student['class_display'] ?? $student['class_name'] ?? ''); ?></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo htmlspecialchars($student['email']); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
